@@ -1,0 +1,43 @@
+# Fly.io configuration for Messaging System Backend
+app = "messaging-system-backend"
+primary_region = "lhr"  # London (Heathrow)
+
+[build]
+  builder = "heroku"
+
+[env]
+  NODE_ENV = "production"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 3000
+  processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.tcp_checks]]
+    interval = 15000
+    timeout = 5000
+    grace_period = "10s"
+
+[checks]
+  [checks.alive]
+    type = "http"
+    interval = 10000
+    timeout = 5000
+    grace_period = "30s"
+    method = "GET"
+    path = "/health"
+
