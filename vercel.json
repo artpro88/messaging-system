@@ -1,0 +1,20 @@
+{
+  "projects": {
+    "frontend": {
+      "rootDirectory": "frontend",
+      "settings": {
+        "buildCommand": "npm run build",
+        "installCommand": "npm install",
+        "outputDirectory": ".next"
+      }
+    },
+    "backend": {
+      "rootDirectory": "backend",
+      "settings": {
+        "buildCommand": "npm install",
+        "installCommand": "npm install"
+      }
+    }
+  }
+}
+

@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import conversationRoutes from './routes/conversations.js';
 import webhookRoutes from './routes/webhooks.js';
+import livechatRoutes from './routes/livechat.js';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/livechat', livechatRoutes);
 app.use('/webhooks', webhookRoutes);
 
 // Health check
@@ -61,6 +63,17 @@ io.on('connection', (socket) => {
 
   socket.on('stop-typing', (conversationId) => {
     socket.broadcast.to(`conversation:${conversationId}`).emit('agent-stopped-typing');
+  });
+
+  // Live chat customer connect
+  socket.on('livechat-connect', (conversationId) => {
+    socket.join(`livechat:${conversationId}`);
+    console.log(`Customer ${socket.id} connected to livechat:${conversationId}`);
+  });
+
+  // Live chat customer disconnect
+  socket.on('livechat-disconnect', (conversationId) => {
+    socket.leave(`livechat:${conversationId}`);
   });
 
   socket.on('disconnect', () => {
