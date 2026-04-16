@@ -2,7 +2,6 @@ import express from 'express';
 import * as conversationService from '../services/conversationService.js';
 import * as emailService from '../services/emailService.js';
 import * as smsService from '../services/smsService.js';
-import { query } from '../db.js';
 
 const router = express.Router();
 

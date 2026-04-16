@@ -1,5 +1,5 @@
 import express from 'express';
-import { query } from '../db.js';
+import db from '../db.js';
 import { hashPassword, comparePassword, createToken, authenticateToken } from '../utils/auth.js';
 
 const router = express.Router();
@@ -14,7 +14,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user exists
-    const checkUser = await query('SELECT id FROM users WHERE email = $1', [email]);
+    const checkUser = await db.query('SELECT id FROM users WHERE email = $1', [email]);
     if (checkUser.rows.length > 0) {
       return res.status(400).json({ error: 'User already exists' });
     }
@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
     const passwordHash = await hashPassword(password);
 
     // Create user (default role: agent)
-    const result = await query(
+    const result = await db.query(
       'INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, $4) RETURNING id, email, name, role',
       [email, passwordHash, name, 'agent']
     );
@@ -47,7 +47,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
-    const result = await query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
 // Get current user
 router.get('/me', authenticateToken, async (req, res) => {
   try {
-    const result = await query('SELECT id, email, name, role FROM users WHERE id = $1', [req.user.id]);
+    const result = await db.query('SELECT id, email, name, role FROM users WHERE id = $1', [req.user.id]);
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch user' });

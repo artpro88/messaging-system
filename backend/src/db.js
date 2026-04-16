@@ -13,7 +13,7 @@ pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
 });
 
-export const query = (text, params) => {
+const query = (text, params) => {
   const start = Date.now();
   return pool.query(text, params).then((res) => {
     const duration = Date.now() - start;
@@ -22,10 +22,13 @@ export const query = (text, params) => {
   });
 };
 
-export const getClient = async () => {
+const getClient = async () => {
   const client = await pool.connect();
   return client;
 };
 
-export default pool;
+export default {
+  query,
+  getClient
+};
 

@@ -1,0 +1,1 @@
+#!/bin/bash\n\nset -x\nexec 2>&1\n\ncd \"$(dirname \"$0\")\"\n\necho \"Current directory: $(pwd)\"\necho \"Git remote:\"\ngit remote -v\n\necho \"\"\necho \"Current HEAD:\"\ngit log -1 --oneline\n\necho \"\"\necho \"Pushing to origin main...\"\ngit push -u origin main\n\necho \"\"\necho \"Done!\"\n
