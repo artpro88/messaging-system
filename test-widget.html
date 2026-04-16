@@ -81,8 +81,21 @@
     </div>
 
     <div class="test-section">
+      <h2>Test 4: Manual Widget Test</h2>
+      <p>After loading the widget, click the purple bubble and try sending a message.</p>
+      <button onclick="openBrowserConsole()">💻 Open Browser Console (F12)</button>
+      <div id="test4-output" class="output"></div>
+    </div>
+
+    <div class="test-section">
       <h2>📍 Widget Status</h2>
       <p>The purple chat bubble should appear in the bottom-right corner if the widget loaded successfully.</p>
+      <p><strong>After opening the widget:</strong></p>
+      <ol>
+        <li>Type a message in the input field</li>
+        <li>Click Send button OR press Enter</li>
+        <li>Check the browser console (F12) for any errors</li>
+      </ol>
     </div>
   </div>
 
@@ -153,11 +166,17 @@
       script.onload = () => {
         log('test3-output', '✅ Widget script loaded successfully!');
         log('test3-output', '👀 Check bottom-right corner for the chat bubble');
+        log('test3-output', '💡 The widget should show a purple button with chat emoji');
       };
       script.onerror = () => {
         log('test3-output', '❌ Failed to load widget script');
       };
       document.head.appendChild(script);
+    }
+
+    function openBrowserConsole() {
+      log('test4-output', '👉 Browser console opened with F12 key');
+      log('test4-output', '🔍 Look for log messages with "Sending message:" when you click Send');
     }
   </script>
 </body>

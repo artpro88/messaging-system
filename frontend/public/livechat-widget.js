@@ -29,7 +29,7 @@
         background: white;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        display: flex;
+        display: none;
         flex-direction: column;
         z-index: 10000;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -117,22 +117,35 @@
     const sendBtn = document.getElementById('livechat-send');
     const input = document.getElementById('livechat-input');
 
+    if (!toggle || !widget || !closeBtn || !sendBtn || !input) {
+      console.error('Widget elements not found:', { toggle, widget, closeBtn, sendBtn, input });
+      return;
+    }
+
     toggle.addEventListener('click', () => {
+      console.log('Toggle button clicked');
       widget.style.display = widget.style.display === 'none' ? 'flex' : 'none';
       toggle.style.display = toggle.style.display === 'none' ? 'block' : 'none';
       if (widget.style.display === 'flex') {
+        console.log('Widget opened, initializing chat...');
         initializeChat();
       }
     });
 
     closeBtn.addEventListener('click', () => {
+      console.log('Close button clicked');
       widget.style.display = 'none';
       toggle.style.display = 'block';
     });
 
-    sendBtn.addEventListener('click', sendMessage);
+    sendBtn.addEventListener('click', (e) => {
+      console.log('Send button clicked, conversationId:', conversationId);
+      sendMessage();
+    });
+
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
+        console.log('Enter key pressed, conversationId:', conversationId);
         e.preventDefault();
         sendMessage();
       }
@@ -140,23 +153,34 @@
   }
 
   async function initializeChat() {
-    if (conversationId) return;
+    if (conversationId) {
+      console.log('Chat already initialized with conversationId:', conversationId);
+      return;
+    }
 
     try {
+      const email = localStorage.getItem('livechat_email') || `guest_${Date.now()}@guest.com`;
+      const name = localStorage.getItem('livechat_name') || 'Guest';
+      console.log('Initializing chat with email:', email, 'name:', name);
+
       const response = await fetch(`${API_URL}/conversations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: localStorage.getItem('livechat_email') || `guest_${Date.now()}@guest.com`,
-          name: localStorage.getItem('livechat_name') || 'Guest',
+          email,
+          name,
           metadata: { origin: window.location.hostname }
         })
       });
 
+      console.log('Conversation API response:', response.status);
       const data = await response.json();
+      console.log('Conversation data:', data);
+
       conversationId = data.conversationId;
       customerId = data.customerId;
 
+      console.log('Chat initialized! conversationId:', conversationId, 'customerId:', customerId);
       displayMessages(data.messages);
 
       // Connect to WebSocket
@@ -183,19 +207,37 @@
 
   async function sendMessage() {
     const input = document.getElementById('livechat-input');
+    if (!input) {
+      console.error('Input element not found');
+      return;
+    }
+
     const content = input.value.trim();
-    if (!content) return;
+    console.log('sendMessage called, content:', content, 'conversationId:', conversationId);
+
+    if (!content) {
+      console.log('Message is empty, not sending');
+      return;
+    }
+
+    if (!conversationId) {
+      console.error('No conversation ID set, cannot send message');
+      return;
+    }
 
     try {
-      console.log('Sending message:', { conversationId, content });
+      console.log('Sending message to API:', { conversationId, content, API_URL });
       const response = await fetch(`${API_URL}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversationId, content })
       });
 
+      console.log('Response received:', response.status, response.statusText);
+
       if (!response.ok) {
-        console.error('Server error:', response.status, await response.text());
+        const errorText = await response.text();
+        console.error('Server error:', response.status, errorText);
         return;
       }
 
