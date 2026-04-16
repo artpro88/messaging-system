@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Minimal Widget Test</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      max-width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #333; }
+    .status {
+      background: #e8f4f8;
+      padding: 15px;
+      border-left: 4px solid #0099cc;
+      border-radius: 4px;
+      margin: 15px 0;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 10px 10px 10px 0;
+    }
+    button:hover { background: #764ba2; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Minimal Widget Test</h1>
+    
+    <button onclick="loadWidget()">1️⃣ Load Widget</button>
+    <button onclick="checkStatus()">2️⃣ Check Status</button>
+    <button onclick="testAPI()">3️⃣ Test API</button>
+    <button onclick="clearConsole()">🗑️ Clear Console</button>
+    
+    <div class="status">
+      <strong>📋 Instructions:</strong><br>
+      1. Click "Load Widget" to load the chat widget<br>
+      2. Look for purple chat bubble in bottom-right<br>
+      3. Press F12 to open browser console<br>
+      4. Click the purple bubble to open widget<br>
+      5. Type a message and press Send or Enter<br>
+      6. Check console for "Message sent successfully" message
+    </div>
+    
+    <div class="status" id="output">
+      <strong>📊 Status Output:</strong><br>
+      <span id="log-area">Waiting for actions...</span>
+    </div>
+  </div>
+
+  <script>
+    function log(msg) {
+      const area = document.getElementById('log-area');
+      const time = new Date().toLocaleTimeString();
+      area.innerHTML += `<br>[${time}] ${msg}`;
+      console.log(`[${time}] ${msg}`);
+    }
+
+    function clearConsole() {
+      document.getElementById('log-area').innerHTML = 'Console cleared...';
+      console.clear();
+    }
+
+    function loadWidget() {
+      log('📥 Loading widget from http://localhost:3001/livechat-widget.js');
+      const script = document.createElement('script');
+      script.src = 'http://localhost:3001/livechat-widget.js';
+      script.onload = () => log('✅ Widget loaded! Look for purple bubble 💬');
+      script.onerror = () => log('❌ Failed to load widget');
+      script.onprogress = () => log('⏳ Loading...');
+      document.head.appendChild(script);
+    }
+
+    function checkStatus() {
+      log('🔍 Checking server status...');
+      
+      fetch('http://localhost:3000/health')
+        .then(r => r.json())
+        .then(d => log('✅ Backend OK: ' + JSON.stringify(d)))
+        .catch(e => log('❌ Backend error: ' + e.message));
+
+      fetch('http://localhost:3001/')
+        .then(r => log('✅ Frontend OK: port 3001'))
+        .catch(e => log('❌ Frontend error: ' + e.message));
+    }
+
+    function testAPI() {
+      log('📤 Testing API endpoints...');
+      
+      fetch('http://localhost:3000/api/livechat/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'test@minimal.test',
+          name: 'MinimalTest',
+          metadata: {}
+        })
+      })
+      .then(r => r.json())
+      .then(d => {
+        log('✅ Conversation API: ' + JSON.stringify(d));
+      })
+      .catch(e => log('❌ API error: ' + e.message));
+    }
+  </script>
+</body>
+</html>
+
