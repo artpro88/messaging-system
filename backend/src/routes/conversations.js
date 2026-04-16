@@ -104,6 +104,29 @@ router.post('/:id/reply/whatsapp', authenticateToken, async (req, res) => {
   }
 });
 
+// Send reply via live chat
+router.post('/:id/reply/live_chat', authenticateToken, async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message required' });
+    }
+
+    const msg = await conversationService.addMessage(
+      req.params.id,
+      req.user.id,
+      message,
+      'live_chat',
+      'outgoing'
+    );
+
+    res.json({ message: msg });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to send live chat message' });
+  }
+});
+
 // Update conversation status
 router.patch('/:id/status', authenticateToken, async (req, res) => {
   try {

@@ -5,7 +5,10 @@ import axios from 'axios'
 import styles from './ReplyBox.module.css'
 
 export default function ReplyBox({ conversation, onMessageSent }) {
-  const [channel, setChannel] = useState('email')
+  const [channel, setChannel] = useState(() => {
+    // Auto-detect channel from conversation if available
+    return conversation?.channel || 'email'
+  })
   const [message, setMessage] = useState('')
   const [subject, setSubject] = useState('')
   const [loading, setLoading] = useState(false)

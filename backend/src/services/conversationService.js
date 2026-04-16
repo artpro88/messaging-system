@@ -107,7 +107,12 @@ export const getConversation = async (conversationId) => {
 export const listConversations = async (limit = 50, offset = 0) => {
   try {
     const result = await query(
-      'SELECT c.*, cust.name, cust.email FROM conversations c LEFT JOIN customers cust ON c.customer_id = cust.id ORDER BY c.updated_at DESC LIMIT $1 OFFSET $2',
+      `SELECT c.*, cust.name, cust.email,
+              (SELECT channel FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as channel,
+              (SELECT content FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_preview
+       FROM conversations c
+       LEFT JOIN customers cust ON c.customer_id = cust.id
+       ORDER BY c.updated_at DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
     return result.rows;

@@ -36,22 +36,29 @@ router.post('/conversations', async (req, res) => {
 router.post('/messages', async (req, res) => {
   try {
     const { conversationId, content } = req.body;
+    console.log('Received message:', { conversationId, content });
 
     if (!conversationId || !content) {
+      console.error('Missing required fields:', { conversationId, content });
       return res.status(400).json({ error: 'Conversation ID and content required' });
     }
 
     // Save message
+    console.log('Saving message to database...');
     const message = await liveChatService.saveMessage(conversationId, null, content);
+    console.log('Message saved:', message);
 
     // Notify agents via WebSocket
     if (req.io) {
+      console.log(`Broadcasting to conversation:${conversationId}`);
       req.io.to(`conversation:${conversationId}`).emit('new-message', {
         id: message.id,
         content,
         direction: 'incoming',
         createdAt: message.created_at
       });
+    } else {
+      console.warn('WebSocket (req.io) not available');
     }
 
     res.json({ id: message.id, createdAt: message.created_at });

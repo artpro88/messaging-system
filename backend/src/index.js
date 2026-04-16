@@ -25,6 +25,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Make io accessible to routes (MUST be before routes)
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/conversations', conversationRoutes);
@@ -79,12 +85,6 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
-});
-
-// Make io accessible to routes
-app.use((req, res, next) => {
-  req.io = io;
-  next();
 });
 
 // Error handling

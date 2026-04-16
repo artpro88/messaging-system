@@ -81,7 +81,7 @@ export default function ConversationList({
                 </div>
                 <div className={styles.badges}>
                   <span className={styles.channelBadge}>
-                    {getChannelIcon(conv.last_channel || 'email')}
+                    {getChannelIcon(conv.channel || 'email')}
                   </span>
                   <span
                     className={styles.statusBadge}

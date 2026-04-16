@@ -4,8 +4,14 @@
  */
 
 (function() {
-  const API_URL = 'https://messaging-system-backend.vercel.app/api/livechat';
-  const SOCKET_URL = 'https://messaging-system-backend.vercel.app';
+  // Support both local development and production
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const API_URL = isLocalhost
+    ? 'http://localhost:3000/api/livechat'
+    : 'https://messaging-system-backend.vercel.app/api/livechat';
+  const SOCKET_URL = isLocalhost
+    ? 'http://localhost:3000'
+    : 'https://messaging-system-backend.vercel.app';
 
   let conversationId = null;
   let customerId = null;
@@ -181,11 +187,20 @@
     if (!content) return;
 
     try {
-      await fetch(`${API_URL}/messages`, {
+      console.log('Sending message:', { conversationId, content });
+      const response = await fetch(`${API_URL}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversationId, content })
       });
+
+      if (!response.ok) {
+        console.error('Server error:', response.status, await response.text());
+        return;
+      }
+
+      const data = await response.json();
+      console.log('Message sent successfully:', data);
 
       addMessage(content, 'customer');
       input.value = '';
