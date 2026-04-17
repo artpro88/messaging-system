@@ -3,7 +3,7 @@ app = "messaging-system-backend"
 primary_region = "lhr"  # London (Heathrow)
 
 [build]
-  builder = "heroku"
+  dockerfile = "Dockerfile"
 
 [env]
   NODE_ENV = "production"
