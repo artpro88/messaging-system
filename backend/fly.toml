@@ -1,9 +1,10 @@
 # Fly.io configuration for Messaging System Backend
 app = "messaging-system-backend"
-primary_region = "lhr"  # London (Heathrow)
+primary_region = "lhr"
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "./Dockerfile"
+  ignorefile = ".dockerignore"
 
 [env]
   NODE_ENV = "production"
