@@ -1,5 +1,6 @@
 import express from 'express';
 import * as liveChatService from '../services/liveChatService.js';
+import db from '../db.js';
 
 const router = express.Router();
 
@@ -22,11 +23,10 @@ router.post('/conversations', async (req, res) => {
     const messages = await liveChatService.getConversationMessages(conversationId);
 
     // Get conversation details for broadcasting
-    const db = (await import('../db.js')).default;
     const convResult = await db.query(
       `SELECT c.id, c.customer_id, c.subject, c.status, c.created_at, c.updated_at, c.last_message_at,
               cust.name, cust.email, cust.phone_number,
-              (SELECT channel FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as channel,
+              (SELECT channel FROM messages WHERE conversation_id = c.id ORDER BY created_at ASC LIMIT 1) as channel,
               (SELECT content FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_preview
        FROM conversations c
        LEFT JOIN customers cust ON c.customer_id = cust.id
