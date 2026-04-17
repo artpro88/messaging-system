@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from '../src/routes/auth.js';
 import conversationRoutes from '../src/routes/conversations.js';
 import webhookRoutes from '../src/routes/webhooks.js';
+import livechatRoutes from '../src/routes/livechat.js';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/livechat', livechatRoutes);
 app.use('/webhooks', webhookRoutes);
 
 // Health check
