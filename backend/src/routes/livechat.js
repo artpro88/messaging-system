@@ -21,6 +21,39 @@ router.post('/conversations', async (req, res) => {
     // Get all messages
     const messages = await liveChatService.getConversationMessages(conversationId);
 
+    // Get conversation details for broadcasting
+    const db = (await import('../db.js')).default;
+    const convResult = await db.query(
+      `SELECT c.id, c.customer_id, c.subject, c.status, c.created_at, c.updated_at, c.last_message_at,
+              cust.name, cust.email, cust.phone_number,
+              (SELECT channel FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as channel,
+              (SELECT content FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_preview
+       FROM conversations c
+       LEFT JOIN customers cust ON c.customer_id = cust.id
+       WHERE c.id = $1`,
+      [conversationId]
+    );
+    const conversation = convResult.rows[0];
+
+    // Broadcast new conversation to inbox via WebSocket
+    if (req.io && conversation) {
+      console.log(`Broadcasting new conversation ${conversationId} to inbox`);
+      req.io.emit('new-conversation', {
+        id: conversation.id,
+        customer_id: conversation.customer_id,
+        name: conversation.name,
+        email: conversation.email,
+        phone_number: conversation.phone_number,
+        subject: conversation.subject,
+        status: conversation.status,
+        channel: conversation.channel || 'live_chat',
+        last_message_preview: conversation.last_message_preview,
+        created_at: conversation.created_at,
+        updated_at: conversation.updated_at,
+        last_message_at: conversation.last_message_at
+      });
+    }
+
     res.json({
       conversationId,
       customerId,

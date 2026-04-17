@@ -121,6 +121,20 @@ router.post('/:id/reply/live_chat', authenticateToken, async (req, res) => {
       'outgoing'
     );
 
+    // Broadcast to live chat widget via WebSocket
+    if (req.io) {
+      console.log(`Broadcasting outgoing message to conversation:${req.params.id}`);
+      req.io.to(`livechat:${req.params.id}`).emit('new-message', {
+        id: msg.id,
+        content: msg.content,
+        direction: 'incoming',
+        createdAt: msg.created_at,
+        status: 'delivered'
+      });
+    } else {
+      console.warn('WebSocket (req.io) not available for live chat broadcast');
+    }
+
     res.json({ message: msg });
   } catch (error) {
     res.status(500).json({ error: 'Failed to send live chat message' });

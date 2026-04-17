@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import styles from './ReplyBox.module.css'
 
@@ -15,6 +15,13 @@ export default function ReplyBox({ conversation, onMessageSent }) {
   const [error, setError] = useState('')
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+  // Update channel when conversation changes
+  useEffect(() => {
+    if (conversation?.channel) {
+      setChannel(conversation.channel)
+    }
+  }, [conversation?.id, conversation?.channel])
 
   const handleSend = async (e) => {
     e.preventDefault()

@@ -36,9 +36,25 @@ export default function InboxPage() {
     const newSocket = io(WS_URL, {
       auth: { token },
     })
+
+    // Listen for new conversations from live chat
+    newSocket.on('new-conversation', (newConv) => {
+      console.log('New conversation received:', newConv)
+      setConversations(prevConversations => {
+        // Check if conversation already exists
+        const exists = prevConversations.some(conv => conv.id === newConv.id)
+        if (!exists) {
+          // Add new conversation to the top of the list
+          return [newConv, ...prevConversations]
+        }
+        return prevConversations
+      })
+    })
+
     setSocket(newSocket)
 
     return () => {
+      newSocket.off('new-conversation')
       newSocket.disconnect()
     }
   }, [])
