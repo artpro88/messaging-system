@@ -5,13 +5,14 @@
 
 (function() {
   // Support both local development and production
+  // NOTE: Vercel serverless doesn't support WebSocket, so production uses Fly.io backend
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const API_URL = isLocalhost
     ? 'http://localhost:3000/api/livechat'
-    : 'https://messaging-system-backend.vercel.app/api/livechat';
+    : 'https://messaging-system-backend.fly.dev/api/livechat';
   const SOCKET_URL = isLocalhost
     ? 'http://localhost:3000'
-    : 'https://messaging-system-backend.vercel.app';
+    : 'https://messaging-system-backend.fly.dev';
 
   let conversationId = null;
   let customerId = null;
